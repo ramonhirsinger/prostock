@@ -27,5 +27,22 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface{
     public function getConfig() {
         return include __DIR__ . '/config/module.config.php';
     }
+    
+    public function getServiceConfig() {
+        return array(
+            'factories' => array(
+                'Prostock\Model\StockTable' => function($sm) {
+                    $tableGateway = $sm->get('StockTableGateway');
+                    $table = new Model\StockTable($tableGateway);
+                    return $table;
+                },
+                'StockTableGateway' => function($sm) {
+                    $dbAdapter = $sm->get('Tend\Db\Adapter\Adapter');
+                    $resultSetPrototype = new \Zend\Db\ResultSet\ResultSet();
+                    return new \Zend\Db\TableGateway\TableGateway('stock', $dbAdapter, null, $resultSetPrototype);
+                },        
+            ),
+        );
+    }
 
 }
